@@ -1,6 +1,6 @@
 PROJECT = boot
 CPU ?= cortex-m3
-BOARD ?= stm32vldiscovery
+BOARD ?= lm3s6965evb
 
 qemu:
 	arm-none-eabi-as -mthumb -mcpu=$(CPU) -ggdb -c boot.S -o boot.o
