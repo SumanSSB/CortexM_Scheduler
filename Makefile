@@ -1,10 +1,10 @@
 PROJECT = boot
 CPU ?= cortex-m3
-BOARD ?= lm3s6965evb
+BOARD ?= stm32vldiscovery
 
 qemu:
-	arm-none-eabi-as -mthumb -mcpu=$(CPU) -ggdb -c boot.S -o boot.o
-	arm-none-eabi-ld -Tmap.ld boot.o -o boot.elf
+	arm-none-eabi-as -mthumb -mcpu=$(CPU) -g -c boot.S -o boot.o
+	arm-none-eabi-ld -T map.ld boot.o -o boot.elf
 	arm-none-eabi-objdump -D -S boot.elf > boot.elf.lst
 	arm-none-eabi-readelf -a boot.elf > boot.elf.debug
 	qemu-system-arm -S -M $(BOARD) -cpu $(CPU) -nographic -kernel $(PROJECT).elf -gdb tcp::1234
