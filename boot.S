@@ -37,12 +37,12 @@ sys_tick:
     push {r4-r7}
 
 
-    pop {r7, r6, r5, r4} // Restoring the context of next task
+    pop {r4-r7} // Restoring the context of next task
     mov r8, r4
     mov r9, r5
     mov r10, r6
     mov r11, r7
-    pop {r7, r6, r5, r4}
+    pop {r4-r7}
     bx lr
 
 .align 1
@@ -64,7 +64,7 @@ task3:
 
 .section .data
 .align 2
-.org 964
+.org 960
 .type task_stack1, %function
 task_stack1:
     .word 0x18
