@@ -2,7 +2,9 @@
 .equ SYST_RVR,   0xE000E014
 .equ SYST_CVR,   0xE000E018
 .equ SYST_CALIB, 0xE000E01C
+.equ STACK_INFO, 0x20001FEC
 .equ SYST_RELOAD, 0x00FFFFFF
+.equ STACK_LIMIT, 0x20002000
 
 .section .vectors
 vector_table:
@@ -17,7 +19,9 @@ vector_table:
     .type reset_handler, %function
 
 reset_handler:
-    
+
+    bl init_task_stack
+
     LDR r0, =SYST_RELOAD
     LDR r1, =SYST_CSR
     LDR r2, =SYST_RVR
@@ -25,6 +29,25 @@ reset_handler:
     mov r0, #7
     str r0, [r1]
     b .
+
+init_task_stack:
+    mov r0, #4
+    LDR r2, =0x20001000
+    LDR r3, =task_stack1
+    LDR r4, =task_stack2
+    LDR r5, =task_stack3
+    LDR r1, =STACK_INFO
+    STR r0, [r1]
+    ADD r1, r1, r0
+    STR r2,[r1]
+    ADD r1, r1, r0
+    STR r3,[r1]
+    ADD r1, r1, r0
+    STR r4,[r1]
+    ADD r1, r1, r0
+    STR r5,[r1]
+
+    bx lr
 
     .align 1
     .type sys_tick, %function
@@ -36,6 +59,19 @@ sys_tick:
     mov r7, r11
     push {r4-r7}
 
+    LDR r0, =STACK_INFO
+    LDR r5, =STACK_LIMIT
+    mov r1, sp
+    LDR r2, [r0]
+    ADD r3, r0, r2
+    STR r1, [r3] // storing current value of sp
+    ADD r2, r2, #4
+    ADD r3, r0, r2
+    SUB r4, r5, r3
+    CBZ r4, st_res
+    STR r2, [r0]
+    LDR r6, [r3]
+    mov sp, r6
 
     pop {r4-r7} // Restoring the context of next task
     mov r8, r4
@@ -43,6 +79,11 @@ sys_tick:
     mov r10, r6
     mov r11, r7
     pop {r4-r7}
+    bx lr
+
+st_res:
+    mov r2, #8
+    ADD r3, r0, r2
     bx lr
 
 .align 1
