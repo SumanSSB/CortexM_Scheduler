@@ -2,9 +2,9 @@
 .equ SYST_RVR,   0xE000E014
 .equ SYST_CVR,   0xE000E018
 .equ SYST_CALIB, 0xE000E01C
-.equ STACK_INFO, 0x20001FEC
 .equ SYST_RELOAD, 0x00FFFFFF
-.equ STACK_LIMIT, 0x20002000
+.equ TSTACK_BLOCK, 0x20001FEC
+.equ TTSTACK_LIMIT, 0x20002000
 
 .section .vectors
 vector_table:
@@ -30,14 +30,15 @@ reset_handler:
     str r0, [r1]
     b .
 
-init_task_stack:
+init_task_stack:    // Initialzes the task stack value
     mov r0, #4
     LDR r2, =0x20001000
     LDR r3, =task_stack1
     LDR r4, =task_stack2
     LDR r5, =task_stack3
-    LDR r1, =STACK_INFO
-    STR r0, [r1]
+    LDR r1, =TSTACK_BLOCK
+
+    STR r0, [r1]    // Storing address of stack 
     ADD r1, r1, r0
     STR r2,[r1]
     ADD r1, r1, r0
@@ -59,38 +60,42 @@ sys_tick:
     mov r7, r11
     push {r4-r7}
 
-    LDR r0, =STACK_INFO
-    LDR r5, =STACK_LIMIT
+    LDR r0, =TSTACK_BLOCK   // choosing next task to run
+    LDR r5, =TTSTACK_LIMIT
     mov r1, sp
     LDR r2, [r0]
     ADD r3, r0, r2
-    STR r1, [r3] // storing current value of sp
-    ADD r2, r2, #4
+    STR r1, [r3]    // storing current value of sp in task stack block
+
+    ADD r2, r2, #4  
     ADD r3, r0, r2
     SUB r4, r5, r3
-    CBZ r4, st_res
+    CBNZ r4, load_task
+    mov r2, #8     // reseting the pointer to point to t1 stack when it reaches end
+    ADD r3, r0, r2
+    b load_task
+
+load_task:
     STR r2, [r0]
-    LDR r6, [r3]
+    LDR r6, [r3]    // Loading next task stack pointer from block
     mov sp, r6
 
-    pop {r4-r7} // Restoring the context of next task
+    pop {r4-r7}     // Restoring the context of next task
     mov r8, r4
     mov r9, r5
     mov r10, r6
     mov r11, r7
     pop {r4-r7}
+
     bx lr
 
-st_res:
-    mov r2, #8
-    ADD r3, r0, r2
-    bx lr
 
 .align 1
 .type task1, %function
 task1:
     add r4, r4, #1
     b task1
+    
 .align 1
 .type task2, %function
 task2:
