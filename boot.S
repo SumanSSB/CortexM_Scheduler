@@ -6,6 +6,10 @@
 .equ TSTACK_BLOCK, 0x20001FEC
 .equ TTSTACK_LIMIT, 0x20002000
 
+.extern task1
+.extern task2
+.extern task3
+
 .section .vectors
 vector_table:
     .word 0x20001000
@@ -88,28 +92,6 @@ load_task:
     pop {r4-r7}
 
     bx lr
-
-
-.align 1
-.global task1
-.type task1, %function
-task1:
-    add r4, r4, #1
-    b task1
-
-.align 1
-.global task2
-.type task2, %function
-task2:
-    add r5, r5, #1
-    b task2
-
-.align 1
-.global task3
-.type task3, %function
-task3:
-    add r6, r6, #1
-    b task3
 
 .section .data
 .align 2
