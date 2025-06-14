@@ -91,18 +91,21 @@ load_task:
 
 
 .align 1
+.global task1
 .type task1, %function
 task1:
     add r4, r4, #1
     b task1
-    
+
 .align 1
+.global task2
 .type task2, %function
 task2:
     add r5, r5, #1
     b task2
 
 .align 1
+.global task3
 .type task3, %function
 task3:
     add r6, r6, #1
@@ -111,7 +114,6 @@ task3:
 .section .data
 .align 2
 .org 960
-.type task_stack1, %function
 task_stack1:
     .word 0x18
     .word 0x19
@@ -130,8 +132,8 @@ task_stack1:
     .word task1
     .word 0x01000000
     .zero 960
+
 .align 2
-.type task_stack2, %function
 task_stack2:
     .word 0x28
     .word 0x29
@@ -152,7 +154,6 @@ task_stack2:
     .zero 960
 
 .align 2
-.type task_stack3, %function
 task_stack3:
     .word 0x38
     .word 0x39
