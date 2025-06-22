@@ -20,13 +20,10 @@ vector_table:
 
 reset_handler:
 
-    LDR r0, =SYST_RELOAD  // Configuring SysTick 
-    LDR r1, =SYST_CSR
+    LDR r0, =SYST_RELOAD  // Configuring SysTick
     LDR r2, =SYST_RVR
     str r0, [r2]
     bl main
-    //mov r0, #7
-    //str r0, [r1]
     b .
 
 hard_fault:

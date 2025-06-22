@@ -7,7 +7,7 @@ tcb_t* head = NULL;
 
 
 void* task_malloc(size_t size){
-
+    
     size = (size + 3) & (~0x03);    // 4 byte alignment
     if(size + mem_ptr >= MAX_MEM_SIZE){
         return NULL;
@@ -40,6 +40,13 @@ uint32_t taskcreate(void (*task_ptr)(void), size_t size){
         head = tcb;
     }
     else{
+        // Prefilling LR, PSR and PC values for Context Switch
+        uint32_t* s_ptr = tcb->stack_pointer - 16;
+        s_ptr[15] = 0x01000000;
+        s_ptr[14] = (uint32_t)tcb->task;
+        s_ptr[13] = 0xfffffffd;
+        tcb->stack_pointer = s_ptr;
+
         tcb_t* temp = head;
         while(temp->next != head){
             temp = temp->next;
@@ -66,20 +73,24 @@ void startschedule(void){
 
 void sys_tick(void){
     // Saving previous registery content(R4-R11)
-    __asm("MRS r0, psp");
-    __asm("STMDB r0!, {r4-r11}");
-    __asm("LDR r1, =head");
-    __asm("LDR r2, [r1]");
-    __asm("STR r0, [r2]");
-
+    __asm(
+        "MRS r0, psp        \n"
+        "STMDB r0!, {r4-r11}\n"
+        "LDR r1, =head      \n"
+        "LDR r2, [r1]       \n"
+        "STR r0, [r2]       \n"
+        );
     // Changing head to point to head->next
     // head = head->next
-    __asm("LDR r3, [r2, #12]");
-    __asm("STR r3, [r1]");  
+    __asm(
+        "LDR r3, [r2, #12]  \n"
+        "STR r3, [r1]       \n"
+        );  
 
     // Loading next registery content(R4-R11)
-    __asm("LDR r0, [r3]");
-    __asm("LDMIA r0!, {r4-r11}");
-    __asm("MSR psp, r0");
-    __asm("bx lr");
+    __asm("LDR r0, [r3]     \n"
+        "LDMIA r0!, {r4-r11}\n"
+        "MSR psp, r0        \n"
+        "bx lr              \n"
+        );
 }
