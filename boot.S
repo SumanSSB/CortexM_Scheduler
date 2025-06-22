@@ -12,7 +12,7 @@
 
 .section .vectors
 vector_table:
-    .word 0x20001000
+    .word 0x20002000
     .word reset_handler
     .word 0
     .word hard_fault
@@ -40,9 +40,9 @@ reset_handler:
 init_task_stack:    // Initialzes the task stack value
     mov r0, #4
     LDR r2, =0x20002000
-    LDR r3, =task_stack1
-    LDR r4, =task_stack2
-    LDR r5, =task_stack3
+    //LDR r3, =task_stack1
+    //LDR r4, =task_stack2
+    //LDR r5, =task_stack3
     LDR r1, =TSTACK_BLOCK
 
     STR r0, [r1]    // Storing address of stack 
@@ -99,6 +99,7 @@ load_task:
 hard_fault:
     b .
 
+/*
 .section .data
 .align 2
 .org 960
@@ -159,4 +160,6 @@ task_stack3:
     .word 0x3e
     .word task3
     .word 0x01000000
+*/
+
     
