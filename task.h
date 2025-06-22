@@ -2,6 +2,7 @@
 #include <stdint.h>
 
 #define NULL            ((void*)0)
+#define SYST_CSR        (*(volatile uint32_t*)0xE000E010)  // SysTick Control and Status Register
 typedef uint16_t        size_t;
 
 typedef struct TCB{

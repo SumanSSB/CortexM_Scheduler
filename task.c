@@ -51,5 +51,19 @@ uint32_t taskcreate(void (*task_ptr)(void), size_t size){
 }
 
 void startschedule(void){
-    __asm("mov r0, #7");
+    SYST_CSR = 0x07;
+    __asm(
+        "LDR r0, =head      \n"     // &head
+        "LDR r0, [r0]       \n"     // head
+        "LDR r1, [r0, #0]   \n"     // head->sp
+        "MSR psp, r1        \n"     // update sp value
+        "MOV r2, #2         \n"
+        "MSR CONTROL, r2    \n"     // change stack from msp to psp
+        "LDR r1, [r0, #8]   \n"     // head->task
+        "BX  r1             \n"
+        );
+}
+
+void sys_tick(void){
+    volatile uint32_t i = 0;
 }
