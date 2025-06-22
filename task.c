@@ -65,5 +65,21 @@ void startschedule(void){
 }
 
 void sys_tick(void){
-    volatile uint32_t i = 0;
+    // Saving previous registery content(R4-R11)
+    __asm("MRS r0, psp");
+    __asm("STMDB r0!, {r4-r11}");
+    __asm("LDR r1, =head");
+    __asm("LDR r2, [r1]");
+    __asm("STR r0, [r2]");
+
+    // Changing head to point to head->next
+    // head = head->next
+    __asm("LDR r3, [r2, #12]");
+    __asm("STR r3, [r1]");  
+
+    // Loading next registery content(R4-R11)
+    __asm("LDR r0, [r3]");
+    __asm("LDMIA r0!, {r4-r11}");
+    __asm("MSR psp, r0");
+    __asm("bx lr");
 }
