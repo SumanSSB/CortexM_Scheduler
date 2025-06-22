@@ -14,7 +14,9 @@
 vector_table:
     .word 0x20001000
     .word reset_handler
-    .zero 52
+    .word 0
+    .word hard_fault
+    .zero 44
     .word sys_tick
     .zero 440
 
@@ -30,13 +32,14 @@ reset_handler:
     LDR r1, =SYST_CSR
     LDR r2, =SYST_RVR
     str r0, [r2]
-    mov r0, #7
-    str r0, [r1]
+    bl main
+    //mov r0, #7
+    //str r0, [r1]
     b .
 
 init_task_stack:    // Initialzes the task stack value
     mov r0, #4
-    LDR r2, =0x20001000
+    LDR r2, =0x20002000
     LDR r3, =task_stack1
     LDR r4, =task_stack2
     LDR r5, =task_stack3
@@ -92,6 +95,9 @@ load_task:
     pop {r4-r7}
 
     bx lr
+
+hard_fault:
+    b .
 
 .section .data
 .align 2
@@ -153,3 +159,4 @@ task_stack3:
     .word 0x3e
     .word task3
     .word 0x01000000
+    
