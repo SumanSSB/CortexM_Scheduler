@@ -19,16 +19,13 @@ vector_table:
     .zero 44
     .word sys_tick
     .zero 440
-
     .section .text
     .align 1
     .type reset_handler, %function
 
 reset_handler:
 
-    bl init_task_stack
-
-    LDR r0, =SYST_RELOAD
+    LDR r0, =SYST_RELOAD  // Configuring SysTick 
     LDR r1, =SYST_CSR
     LDR r2, =SYST_RVR
     str r0, [r2]
@@ -37,25 +34,6 @@ reset_handler:
     //str r0, [r1]
     b .
 
-init_task_stack:    // Initialzes the task stack value
-    mov r0, #4
-    LDR r2, =0x20002000
-    //LDR r3, =task_stack1
-    //LDR r4, =task_stack2
-    //LDR r5, =task_stack3
-    LDR r1, =TSTACK_BLOCK
-
-    STR r0, [r1]    // Storing address of stack 
-    ADD r1, r1, r0
-    STR r2,[r1]
-    ADD r1, r1, r0
-    STR r3,[r1]
-    ADD r1, r1, r0
-    STR r4,[r1]
-    ADD r1, r1, r0
-    STR r5,[r1]
-
-    bx lr
 
     .align 1
     .type sys_tick, %function
@@ -96,70 +74,9 @@ load_task:
 
     bx lr
 
+
 hard_fault:
     b .
 
-/*
-.section .data
-.align 2
-.org 960
-task_stack1:
-    .word 0x18
-    .word 0x19
-    .word 0x1a
-    .word 0x1b
-    .word 0x14
-    .word 0x15
-    .word 0x16
-    .word 0x17
-    .word 0x10
-    .word 0x11
-    .word 0x12
-    .word 0x13
-    .word 0x1c
-    .word 0x1e
-    .word task1
-    .word 0x01000000
-    .zero 960
-
-.align 2
-task_stack2:
-    .word 0x28
-    .word 0x29
-    .word 0x2a
-    .word 0x2b
-    .word 0x24
-    .word 0x25
-    .word 0x26
-    .word 0x27
-    .word 0x20
-    .word 0x21
-    .word 0x22
-    .word 0x23
-    .word 0x2c
-    .word 0x2e
-    .word task2
-    .word 0x01000000
-    .zero 960
-
-.align 2
-task_stack3:
-    .word 0x38
-    .word 0x39
-    .word 0x3a
-    .word 0x3b
-    .word 0x34
-    .word 0x35
-    .word 0x36
-    .word 0x37
-    .word 0x30
-    .word 0x31
-    .word 0x32
-    .word 0x33
-    .word 0x3c
-    .word 0x3e
-    .word task3
-    .word 0x01000000
-*/
 
     
